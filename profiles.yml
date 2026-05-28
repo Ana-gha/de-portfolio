@@ -1,0 +1,42 @@
+# dbt profiles.yml
+# Save this file at: ~/.dbt/profiles.yml  (NOT inside your project folder)
+#
+# This file contains connection details for dbt to connect to your database.
+# Choose ONE profile below based on your setup.
+# ============================================================
+
+# ── OPTION 1: DuckDB (Recommended for local practice, no cloud needed) ────────
+nyc_taxi_duckdb:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "nyc_taxi.duckdb"          # DuckDB file created in your project folder
+      threads: 4
+
+# ── OPTION 2: Databricks (Month 2 — after you have a Databricks workspace) ───
+nyc_taxi_databricks:
+  target: dev
+  outputs:
+    dev:
+      type: databricks
+      host: "adb-XXXXXXXXX.X.azuredatabricks.net"   # from Databricks workspace URL
+      http_path: "/sql/1.0/warehouses/XXXXXXXXX"    # from SQL Warehouse → Connection details
+      token: "dapi_XXXXXXXXXXXXXXXXXXXX"             # from User Settings → Developer → Access tokens
+      catalog: hive_metastore                        # or your Unity Catalog name
+      schema: nyc_taxi_dbt                           # dbt will create this schema
+      threads: 4
+
+# ── OPTION 3: PostgreSQL (if you have a local Postgres) ──────────────────────
+nyc_taxi_postgres:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      port: 5432
+      user: your_username
+      password: your_password
+      dbname: nyc_taxi
+      schema: dbt_dev
+      threads: 4

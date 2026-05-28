@@ -1,0 +1,65 @@
+# models/staging/schema.yml
+# Defines your raw sources and staging model tests
+
+version: 2
+
+sources:
+  - name: raw                             # reference in models as {{ source('raw', 'trips') }}
+    description: "Raw NYC Taxi data loaded into Bronze layer"
+    schema: nyc_taxi                      # database schema where raw tables live
+    tables:
+      - name: bronze_trips
+        description: "Raw NYC Yellow Taxi trip records — Bronze Delta table"
+        columns:
+          - name: VendorID
+            description: "Taxi vendor: 1=Creative Mobile, 2=VeriFone"
+          - name: tpep_pickup_datetime
+            description: "Pickup timestamp"
+            tests:
+              - not_null
+          - name: tpep_dropoff_datetime
+            description: "Dropoff timestamp"
+            tests:
+              - not_null
+          - name: fare_amount
+            description: "Base fare before tips and tolls"
+          - name: payment_type
+            description: "1=Credit, 2=Cash, 3=No charge, 4=Dispute"
+            tests:
+              - accepted_values:
+                  values: [1, 2, 3, 4, 5, 6]
+
+models:
+  - name: stg_trips
+    description: "Staged and cleaned NYC Taxi trips — type cast, renamed, filtered"
+    columns:
+      - name: trip_id
+        description: "Surrogate key for the trip"
+        tests:
+          - unique
+          - not_null
+      - name: pickup_datetime
+        tests:
+          - not_null
+      - name: dropoff_datetime
+        tests:
+          - not_null
+      - name: fare_usd
+        tests:
+          - not_null
+      - name: payment_type_code
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6]
+
+  - name: stg_payment_types
+    description: "Payment type lookup — maps codes to labels"
+    columns:
+      - name: payment_type_code
+        tests:
+          - unique
+          - not_null
+      - name: payment_label
+        tests:
+          - not_null

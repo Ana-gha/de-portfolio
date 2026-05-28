@@ -1,0 +1,36 @@
+# dbt_project.yml — Main project configuration
+# Run from this folder: dbt run, dbt test, dbt docs generate
+
+name: "nyc_taxi"
+version: "1.0.0"
+config-version: 2
+
+profile: "nyc_taxi_duckdb"    # matches profile name in ~/.dbt/profiles.yml
+
+model-paths:    ["models"]
+test-paths:     ["tests"]
+macro-paths:    ["macros"]
+snapshot-paths: ["snapshots"]
+docs-paths:     ["docs"]
+
+target-path:    "target"
+clean-targets:  ["target", "dbt_packages"]
+
+models:
+  nyc_taxi:
+    staging:
+      +materialized: view          # staging = lightweight views
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table         # marts = persisted tables for BI tools
+      +schema: marts
+
+vars:
+  # Adjust these for your data
+  start_date: "2023-01-01"
+  min_fare_usd: 0.50
+  max_fare_usd: 500.00
+  max_passengers: 6
